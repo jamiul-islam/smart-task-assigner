@@ -32,6 +32,7 @@ import {
   getMembersWithWorkload,
   type MemberWithWorkload,
 } from '@/lib/actions/members';
+import { reassignTasks } from '@/lib/actions/tasks';
 import { toast } from 'sonner';
 
 export function MembersSection() {
@@ -41,6 +42,7 @@ export function MembersSection() {
   const [name, setName] = useState('');
   const [capacity, setCapacity] = useState('3');
   const [submitting, setSubmitting] = useState(false);
+  const [reassigning, setReassigning] = useState(false);
 
   const loadMembers = async () => {
     setLoading(true);
@@ -100,6 +102,25 @@ export function MembersSection() {
     return 'destructive';
   };
 
+  const handleReassignTasks = async () => {
+    setReassigning(true);
+    const result = await reassignTasks();
+
+    if (result.success && result.data) {
+      const count = result.data.reassignedCount;
+      if (count === 0) {
+        toast.info('No tasks needed reassignment');
+      } else {
+        toast.success(`Reassigned ${count} task${count === 1 ? '' : 's'}`);
+      }
+      loadMembers();
+    } else {
+      toast.error(result.error || 'Failed to reassign tasks');
+    }
+
+    setReassigning(false);
+  };
+
   if (loading) {
     return (
       <Card>
@@ -118,10 +139,18 @@ export function MembersSection() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>Team Members</CardTitle>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>Add Member</Button>
-            </DialogTrigger>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleReassignTasks}
+              disabled={reassigning || members.length === 0}
+            >
+              {reassigning ? 'Reassigning...' : 'Reassign Tasks'}
+            </Button>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>Add Member</Button>
+              </DialogTrigger>
             <DialogContent>
               <form onSubmit={handleAddMember}>
                 <DialogHeader>
@@ -161,7 +190,8 @@ export function MembersSection() {
                 </DialogFooter>
               </form>
             </DialogContent>
-          </Dialog>
+            </Dialog>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
