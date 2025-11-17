@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   createTask,
   getTasks,
@@ -226,10 +227,30 @@ export function TasksSection() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Tasks</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Tasks</CardTitle>
+            <Skeleton className="h-10 w-24" />
+          </div>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
+                <div className="flex items-center gap-3 flex-1">
+                  <Skeleton className="h-5 w-5" />
+                  <div className="flex-1">
+                    <Skeleton className="h-5 w-48 mb-2" />
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                  <Skeleton className="h-5 w-16" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-9 w-14" />
+                  <Skeleton className="h-9 w-16" />
+                </div>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     );
